@@ -7,41 +7,68 @@ import matplotlib.pyplot as plt
 
 class IForestObject():
 
-    def __init__(self, n, df, contamination, max_dep=25, subspace=24, seed=14, *args, **kwargs):
+    def __init__(self, n, df, contamination, max_dep=25, seed=14, *args, **kwargs):
+        """
+        Description: __init__ for IForestObject
+        
+        Parameters:
+            n - Number of trees in ensemble of IForest
+            df - DataFrame on which anomaly detection needs to be performed
+            contamination - % of anomalies in the data
+            max_dep - Maximum depth to which each tree will grow
+            seed - Seed for reproduceability of model
+        
+        Returns: None
+        """
         self.n = n
         self.df = df
-        self.subspace = subspace
         self.contamination = contamination
         self.max_dep = max_dep
         self.seed = seed
-        np.random.seed(seed)
+        np.random.seed(seed)        # Setting Numpy seed for reproduceability
     
-    # def __str__(self):
-        # return f"\nIsolation Forest object with: {self.n} trees, max_depth: {self.max_dep} and seed: {self.seed}\n"
+    def __str__(self):
+        return f"\nIsolation Forest object with: {self.n} trees, max_depth: {self.max_dep} and seed: {self.seed}\n"
     
     
     def feature_selection(self, df):
         """
-        Selects random feature from dataframe
+        Description: Selects random feature from dataframe
+
+        Parameters:
+            df - DataFrame from which random feature needs to be selected
+        
+        Returns: Random feature/column from DataFrame
         """
         return random.choice(df.columns)
     
 
     def cutoff_value(self, df, feature):
         """
-        Selects random cutoff value of a feature/column
+        Description: Selects random cutoff value of a feature/column (b/w Min and Max value of feature)
+
+        Parameters:
+            df - DataFrame from which cutoff value needs to be produced
+            feature - Column/feature from DataFrame from which cutoff value needs to be produced
+        
+        Returns: A random cutoff value b/w Min and Max value of feature
         """
         min_i = df[feature].min()       # Min value of selected feature
         max_i = df[feature].max()       # Max value of selected feature
-
-        # ASSERT HERE
 
         return (max_i - min_i) * np.random.random() + min_i     # Random value b/w Min and Max of feature
     
 
     def partition_feature(self, df, feature, val):
         """
-        Split feature based on cutoff value
+        Description: Partition feature based on cutoff value
+
+        Parameters:
+            df - DataFrame which needs to be partitioned
+            feature - The feature w.r.t which partion will be performed
+            val - cutoff value on which the DataFrame will be split
+        
+        Returns: Two Partitions of the DataFrame based on the cutoff value
         """
         data_1 = df[df[feature] <= val]
         data_2 = df[df[feature] > val]
@@ -51,9 +78,11 @@ class IForestObject():
 
     def classify_data(self, df):
         """
-        !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        !!!
+        Parameters:
+            df - DataFrame from which classification will be found out
         """
-        label_col = df.values[:, -1]    # df specific
+        label_col = df.values[:, -1]
         uq_classes, cnt_uq_classes = np.unique(label_col, return_counts=True)
         
         ix = cnt_uq_classes.argmax()    # index of class with most occurences
@@ -163,35 +192,33 @@ class IForestObject():
         E = np.mean(self.evaluate_instance(data_point,forest))
         c = self.c_factor(n)
         
-        # return E
+        return E
         return 2**-(E/c)
 
 
-##### Generating Test Dataset #####
-mean = [0, 0]
-cov = [[1, 0], [0, 1]]  # diagonal covariance
-Nobjs = 2000
-
-x, y = np.random.multivariate_normal(mean, cov, Nobjs).T
-x[0], y[0] = 3.3, 3.3       #Add manual outlier
-
-df=np.array([x,y]).T
-df = pd.DataFrame(df,columns=['feat1','feat2'])
-
-plt.figure(figsize=(7,7))
-plt.plot(x,y,'bo')
-plt.show()
-
 ##### Algorithm called from here #####
-anms = IForestObject(n=10, df=df, contamination=0.05)
-trees = anms.IForest()
+def iforest_pred(n=100, cntm=0.05, df=None):
 
-an= []
-for i in range(df.shape[0]):
-    an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=25))
+    # assert df != None, "DataFrame must be specified"
 
-ans = np.array(an)
-print(np.unique(ans))
+    anms = IForestObject(n=n, df=df, contamination=cntm)
+    trees = anms.IForest()
 
-plt.hist(an)
-plt.show()
+    an= []
+    for i in range(df.shape[0]):
+        an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=25))
+
+    ans = np.array(an)
+    print(np.unique(ans))
+
+    plt.hist(an)
+    plt.show()
+
+    print(f"an length {len(an)}; ans length {len(ans)}; df length {df.shape}")
+
+    df["anomaly"] = an
+
+    return None
+
+test = iforest_pred(df=df)
+print(df)
