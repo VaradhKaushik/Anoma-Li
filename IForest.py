@@ -16,7 +16,7 @@ class IForestObject():
             df - DataFrame on which anomaly detection needs to be performed
             contamination - % of anomalies in the data
             max_dep - Maximum depth to which each tree will grow
-            seed - Seed for reproduceability of model
+            seed - Seed for reproducibility of model
         
         Returns: None
         """
@@ -25,9 +25,12 @@ class IForestObject():
         self.contamination = contamination
         self.max_dep = max_dep
         self.seed = seed
-        np.random.seed(seed)        # Setting Numpy seed for reproduceability
+        np.random.seed(seed)        # Setting Numpy seed for reproducibility
     
     def __str__(self):
+        """
+        Setting up __str__ for the Isolation Forest Object
+        """
         return f"\nIsolation Forest object with: {self.n} trees, max_depth: {self.max_dep} and seed: {self.seed}\n"
     
     
@@ -70,10 +73,10 @@ class IForestObject():
         
         Returns: Two Partitions of the DataFrame based on the cutoff value
         """
-        data_1 = df[df[feature] <= val]
-        data_2 = df[df[feature] > val]
+        data_1 = df[df[feature] <= val]         # Selecting values less than or equal to the cutoff value
+        data_2 = df[df[feature] > val]          # Selecting values more than the cutoff value
 
-        return data_1, data_2
+        return data_1, data_2                   # Returning the 2 partitions
     
 
     def classify_data(self, df):
@@ -91,6 +94,16 @@ class IForestObject():
         return classification
     
     def ITree(self, df, cnt=0):
+        """
+        Description: Makes an Isolation Tree using recursion.
+
+        Parameters:
+            df - Dataframe from which Isolation tree will be made.
+            cnt - Current depth of the isolation tree.
+        
+        Returns: Recursion function, returns itself and on termination condition returns the classification of data
+        !!!
+        """
 
         # Termination case
         if (cnt == self.max_dep) or (df.shape[0] <= 1):     # If max depth reached or final value in df
@@ -121,7 +134,15 @@ class IForestObject():
             
             return sub_tree
             
-    def IForest(self): 
+    def IForest(self):
+        """
+        Description: Creates an ensemble of trees to make an Isolation Forest
+
+        Parameters:
+            self - Object for which Isolation Forest has to be made. Object's parameters are used in this function.
+
+        Returns: A list with Isolation Trees ~ Isolation Forest
+        """
         forest = []
         
         for i in range(self.n):
