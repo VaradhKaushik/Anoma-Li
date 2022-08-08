@@ -7,13 +7,14 @@ import matplotlib.pyplot as plt
 
 class IForestObject():
 
-    def __init__(self, n, df, contamination, max_dep=25, seed=14, *args, **kwargs):
+    def __init__(self, n, df, contamination, subspace=256, max_dep=25, seed=14, *args, **kwargs):
         """
         Description: __init__ for IForestObject
         
         Parameters:
             n - Number of trees in ensemble of IForest
             df - DataFrame on which anomaly detection needs to be performed
+            subspace - For creation of IForest, a random slice of this size is taken from df
             contamination - % of anomalies in the data
             max_dep - Maximum depth to which each tree will grow
             seed - Seed for reproducibility of model
@@ -23,6 +24,7 @@ class IForestObject():
         self.n = n
         self.df = df
         self.contamination = contamination
+        self.subspace = subspace
         self.max_dep = max_dep
         self.seed = seed
         np.random.seed(seed)        # Setting Numpy seed for reproducibility
@@ -78,20 +80,6 @@ class IForestObject():
 
         return data_1, data_2                   # Returning the 2 partitions
     
-
-    def classify_data(self, df):
-        """
-        !!!
-        Parameters:
-            df - DataFrame from which classification will be found out
-        """
-        label_col = df.values[:, -1]
-        uq_classes, cnt_uq_classes = np.unique(label_col, return_counts=True)
-        
-        ix = cnt_uq_classes.argmax()    # index of class with most occurences
-        classification = uq_classes[ix]
-
-        return classification
     
     def ITree(self, df, cnt=0):
         """
@@ -107,7 +95,7 @@ class IForestObject():
 
         # Termination case
         if (cnt == self.max_dep) or (df.shape[0] <= 1):     # If max depth reached or final value in df
-            return self.classify_data(df)
+            return df.values[:, -1]
 
         else:
             cnt += 1
@@ -117,9 +105,9 @@ class IForestObject():
 
             data1, data2 = self.partition_feature(df, split_column, split_value)
 
-            # Instantiate sub-tree
-            question = f"{split_column} <= {split_value}"
-            sub_tree = {question: []}
+            # Storing the tree created
+            store = f"{split_column} <= {split_value}"
+            sub_tree = {store: []}
 
             # Recursion
             ans1 = self.ITree(data1, cnt)
@@ -129,8 +117,8 @@ class IForestObject():
                 sub_tree = ans1
             
             else:
-                sub_tree[question].append(ans1)
-                sub_tree[question].append(ans2)
+                sub_tree[store].append(ans1)
+                sub_tree[store].append(ans2)
             
             return sub_tree
             
@@ -145,17 +133,11 @@ class IForestObject():
         """
         forest = []
         
-        for i in range(self.n):
-
-            if self.subspace <= 1:
-                data = self.df.sample(frac=self.subspace)
-            
-            else:
-                data = self.df.sample(self.subspace)
-        
+        for i in range(self.n):                 
+            data = self.df.sample(self.subspace)    # Pick random slice of data to train trees on. 256 - ideal acc to Research Paper
+                                                    
             # Fitting Tree
             tree = self.ITree(data)
-
 
             # Add tree to forest
             forest.append(tree)
@@ -164,17 +146,28 @@ class IForestObject():
 
 
     def pathLength(self, example, itree, path=0):
+        """
+        Description: Recursive function that returns the path length/ depth of a particular itree
 
+        Parameters:
+            example - 
+            itree - The ITree whose path length is to be found out
+            path - The current path length, initialized to zero
+        
+        Returns: The Path Length of a particular ITree
+        """
         path += 1
-        question = list(itree.keys())[0]
+        a = list(itree.keys())[0]
 
-        feat_name, comp_oprt, value = question.split()
+        print(a)
+
+        feat_name, comp_oprt, value = a.split()
 
 
         if example[feat_name].values <= float(value):
-            ans = itree[question][0]
+            ans = itree[a][0]
         else:
-            ans = itree[question][1]
+            ans = itree[a][1]
 
         # terminal case
         if not isinstance(ans, dict):
@@ -189,6 +182,15 @@ class IForestObject():
 
 
     def evaluate_instance(self, instance, forest):
+        """
+        Description: Returns a list of all the path lengths from all the itrees in the iforest for a particular df entry
+
+        Parameters:
+            instance - A single point in the dataframe
+            forest - The IForest model which has been trained
+        
+        Returns: A list of all the path lengths (from every tree in forest) for a point in df
+        """
         paths = []
         for tree in forest:
             paths.append(self.pathLength(instance, tree))
@@ -213,16 +215,14 @@ class IForestObject():
         E = np.mean(self.evaluate_instance(data_point,forest))
         c = self.c_factor(n)
         
-        return E
+        # return E
         return 2**-(E/c)
 
 
 ##### Algorithm called from here #####
-def iforest_pred(n=100, cntm=0.05, df=None):
+def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
 
-    # assert df != None, "DataFrame must be specified"
-
-    anms = IForestObject(n=n, df=df, contamination=cntm)
+    anms = IForestObject(n=n, df=df, contamination=cntm, subspace=subspace)
     trees = anms.IForest()
 
     an= []
@@ -232,14 +232,13 @@ def iforest_pred(n=100, cntm=0.05, df=None):
     ans = np.array(an)
     print(np.unique(ans))
 
+    plt.figure("Anomaly score distribution")
     plt.hist(an)
-    plt.show()
-
-    print(f"an length {len(an)}; ans length {len(ans)}; df length {df.shape}")
+    # plt.show()
 
     df["anomaly"] = an
 
+    print(df.head())
+
     return None
 
-test = iforest_pred(df=df)
-print(df)

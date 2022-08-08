@@ -12,9 +12,16 @@ x[0], y[0] = 3.3, 3.3       #Add manual outlier
 df=np.array([x,y]).T
 df = pd.DataFrame(df,columns=['feat1','feat2'])
 
-plt.figure(figsize=(7,7))
-plt.plot(x,y,'bo')
+
+# plt.figure(figsize=(7,7))
+plt.figure("Generated Dataset")
+plt.plot(x,y, 'bo')
+# plt.show()
+
+
+iforest_pred(df=df, subspace=64)
+
+color = ['r' if val>0.55 else 'g' for val in df["anomaly"]]
+
+df.plot.scatter("feat1", "feat2", color=color)
 plt.show()
-
-
-iforest_pred(df=df)
