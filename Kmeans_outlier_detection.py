@@ -16,7 +16,7 @@ class Kmeans:
     Using functions defined within this class,Outliers from the dataset and Cluster label for each point can be obtained.
     '''
 
-    def __init__(self, X, k=5, iterations):
+    def __init__(self, X, k, iterations):
 
         """
         init function for Kmeans outlier detection class
@@ -31,8 +31,7 @@ class Kmeans:
         def init_centroid(m, n, K, X):
 
             """
-            Function initializes the value  for Centroid. random.randint is used t select a random point from te list of
-            points given as input from input table
+            Function initializes the value  for Centroid. random.randint is used to select a random points from the input data points. These values are used as initial Centroids
 
             :param : m is the number of rows in input. n is the number of columns.
             For a 2D array, n=2. K is the nuber of clusters. X is the input data. Return - returns initial values for
@@ -62,7 +61,7 @@ class Kmeans:
 
         """
         Function get_avg calculates the average of points assigned to each cluster
-        This calculates the updated values for Centroid array in each iteration.
+        This result is  the updated values for Centroid array in each iteration.
 
         :return: Centroid array of size k X n
         """
@@ -166,7 +165,7 @@ class Kmeans:
 
     def get_outliers(self, data):
         """
-        Calculates outlier points in the input.
+        Calculates outlier points in the input. It Returns dataset along with the classification value of each data point
 
         :param data: data is the input dataframe containing all rows and columns from Excel sheet.
 
@@ -177,7 +176,7 @@ class Kmeans:
 
     def cluster_list(self):
         """
-        Function to convert each value in dictionary containing clusters to 2 lists (X,Y) for scatter plot
+        Function to convert each value in dictionary containing clusters to 2 lists (X,Y) for scatter plot.
 
         :return: two lists for scatter plot
         """
@@ -195,9 +194,9 @@ class Kmeans:
 
         :return: Returns a graph of Within-Cluster Sums of Squares vs number of clusters
         """
-        WCSS_ar = np.array([])
+        WCSS_arr = np.array([])
         for k in range(2, 11):
-            self.__init__(self.X, k, 100)
+            self.__init__(self.X_DF, k, 100)
             self.Calc_dic()
             Centroidz = self.Centroids
             wcss = 0
@@ -205,12 +204,13 @@ class Kmeans:
             for k in range(self.K):
                 clus_arr = self.cluster_2xm_array(k)
                 wcss = wcss + np.sum((clus_arr.T - Centroidz[k, :]) ** 2)
-            WCSS_ar = np.append(WCSS_ar, wcss)
-        print("WCSS_ar = ", WCSS_ar)
+            WCSS_arr = np.append(WCSS_arr, wcss)
+        print("WCSS_arr = ", WCSS_arr)
 
         K_array = np.arange(2, 11, 1)
-        plt.plot(K_array, WCSS_ar)
+        plt.plot(K_array, WCSS_arr)
         plt.xlabel('Number of Clusters')
-        plt.ylabel('Within-cluster sums of squares (WCSS)')
+        plt.ylabel('within-cluster sums of squares (WCSS)')
         plt.title('Elbow method to determine optimum number of clusters')
         plt.show()
+
