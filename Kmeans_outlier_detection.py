@@ -160,7 +160,7 @@ class Kmeans:
         index = np.argmin(self.temp_dist_arr, axis=1)
         index = index + 1
         df = pd.DataFrame({'cluster_label': index})
-        df_join = [data, df]
+        df_join = pd.concat([data, df], axis=1, join='inner')
         return df_join
 
     def get_outliers(self, data):
@@ -174,7 +174,7 @@ class Kmeans:
         res1 = pd.merge(data, self.outliers1, on=[list(self.X_DF.columns)[0],list(self.X_DF.columns)[1] ])
         return res1
 
-    def cluster_list(self):
+    def cluster_list(self,p):
         """
         Function to convert each value in dictionary containing clusters to 2 lists (X,Y) for scatter plot.
 
