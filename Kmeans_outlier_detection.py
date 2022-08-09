@@ -197,7 +197,7 @@ class Kmeans:
         """
         WCSS_ar = np.array([])
         for k in range(2, 11):
-            self.__init__(self.X, k, 300)
+            self.__init__(self.X, k, 100)
             self.Calc_dic()
             Centroidz = self.Centroids
             wcss = 0
