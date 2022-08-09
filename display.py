@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-class Metrics():
+class Display():
     
     def __init__(self, ypred, ytest):
         '''
