@@ -16,7 +16,7 @@ class Kmeans:
     Using functions defined within this class,Outliers from the dataset and Cluster label for each point can be obtained.
     '''
 
-    def __init__(self, X, k, iterations):
+    def __init__(self, X, k=5, iterations):
 
         """
         init function for Kmeans outlier detection class
