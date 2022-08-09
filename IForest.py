@@ -159,8 +159,6 @@ class IForestObject():
         path += 1
         a = list(itree.keys())[0]
 
-        print(a)
-
         feat_name, comp_oprt, value = a.split()
 
 
@@ -230,13 +228,12 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
         an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=25))
 
     ans = np.array(an)
-    print(np.unique(ans))
 
     plt.figure("Anomaly score distribution")
     plt.hist(an)
     # plt.show()
 
-    df["anomaly"] = an
+    df["IF_anomaly"] = an
 
     print(df.head())
 
