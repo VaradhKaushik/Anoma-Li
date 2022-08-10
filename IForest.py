@@ -172,8 +172,6 @@ class IForestObject():
             residual_tree = ans
             return self.pathLength(instance=instance, itree=residual_tree, path=path)
 
-        return path
-
 
     def evaluate_instance(self, instance, forest):
         """
