@@ -5,7 +5,8 @@ from sklearn.datasets import make_blobs
 
 import Kmeans_outlier_detection as km
 
-
+#Starting unit test for Kmeans class
+print("#Starting unit test for Kmeans class")
 X, y = make_blobs(n_samples=200, centers=5, n_features=2)
 data = pd.DataFrame(dict(x=X[:,0], y=X[:,1], label=y))
 data.columns=['X_values','Y_values','label']
@@ -62,3 +63,6 @@ print("Plotting sample data...")
 plt.scatter(X2["X_values"], X2["Y_values"], c='black')
 
 plt.show()
+
+print("#End of unit test for Kmeans class")
+#End of unit test for Kmeans class
