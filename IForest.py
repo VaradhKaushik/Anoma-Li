@@ -1,4 +1,4 @@
-    # Code for Isolation Forest as anomaly detection
+# Code for Isolation Forest as anomaly detection
 import random
 import numpy as np
 import pandas as pd
@@ -14,7 +14,7 @@ class IForestObject():
         Parameters:
             n - Number of trees in ensemble of IForest
             df - DataFrame on which anomaly detection needs to be performed
-            subspace - For creation of IForest, a random slice of this size is taken from df
+            subspace - For creation of IForest, a random slice of this size is taken from df to train each ITree
             contamination - % of anomalies in the data
             max_dep - Maximum depth to which each tree will grow
             seed - Seed for reproducibility of model
@@ -54,14 +54,14 @@ class IForestObject():
 
         Parameters:
             df - DataFrame from which cutoff value needs to be produced
-            feature - Column/feature from DataFrame from which cutoff value needs to be produced
+            feature - Column/feature in DataFrame from which cutoff value needs to be produced
         
         Returns: A random cutoff value b/w Min and Max value of feature
         """
-        min_i = df[feature].min()       # Min value of selected feature
-        max_i = df[feature].max()       # Max value of selected feature
+        min_i = df[feature].min()       # Min value of feature
+        max_i = df[feature].max()       # Max value of feature
 
-        return (max_i - min_i) * np.random.random() + min_i     # Random value b/w Min and Max of feature
+        return min_i + (max_i - min_i) * np.random.random()     # Random value b/w Min and Max of feature
     
 
     def partition_feature(self, df, feature, val):
@@ -89,36 +89,33 @@ class IForestObject():
             df - Dataframe from which Isolation tree will be made.
             cnt - Current depth of the isolation tree.
         
-        Returns: Recursion function, returns itself and on termination condition returns the classification of data
-        !!!
+        Returns: Recursion function, returns itself and on termination condition returns the Leaf/External/Childless Node
         """
 
-        # Termination case
+        # Termination/ Base case
         if (cnt == self.max_dep) or (df.shape[0] <= 1):     # If max depth reached or final value in df
             return df.values[:, -1]
 
         else:
-            cnt += 1
+            cnt += 1                        # Increase the depth of the current ITree
 
+            # Selecting random feature, cutoff value and partitioning
             split_column = self.feature_selection(df)
             split_value = self.cutoff_value(df, split_column)
 
             data1, data2 = self.partition_feature(df, split_column, split_value)
 
-            # Storing the tree created
+            # Storing the tree created                  # Way of storing referred from github link cited in report
             store = f"{split_column} <= {split_value}"
             sub_tree = {store: []}
 
-            # Recursion
+            # Recursion on the two created partitions
             ans1 = self.ITree(data1, cnt)
             ans2 = self.ITree(data2, cnt)
 
-            if ans1 == ans2:
-                sub_tree = ans1
-            
-            else:
-                sub_tree[store].append(ans1)
-                sub_tree[store].append(ans2)
+            # Storing the sub-trees (Created on partitioned data above)
+            sub_tree[store].append(ans1)
+            sub_tree[store].append(ans2)
             
             return sub_tree
             
@@ -145,36 +142,35 @@ class IForestObject():
         return forest
 
 
-    def pathLength(self, example, itree, path=0):
+    def pathLength(self, instance, itree, path=0):
         """
         Description: Recursive function that returns the path length/ depth of a particular itree
 
         Parameters:
-            example - 
+            instance - A single entry/point from the dataframe
             itree - The ITree whose path length is to be found out
-            path - The current path length, initialized to zero
+            path - The current path length, initialized to zero as recursively called
         
         Returns: The Path Length of a particular ITree
         """
         path += 1
+
+        # Unpacking stored ITree
         a = list(itree.keys())[0]
+        feat_name, _, value = a.split()     # "<=" won't be required so storing in "_"
 
-        feat_name, comp_oprt, value = a.split()
-
-
-        if example[feat_name].values <= float(value):
+        # Determining if the instance will further traverse left branch or right branch of ITree
+        if instance[feat_name].values <= float(value):
             ans = itree[a][0]
         else:
             ans = itree[a][1]
 
-        # terminal case
-        if not isinstance(ans, dict):
+        # Recursion
+        if not isinstance(ans, dict):       # Termination/ Base case
             return path
-        
-        # recursive part
-        else:
+        else:                               
             residual_tree = ans
-            return self.pathLength(example=example, itree=residual_tree, path=path)
+            return self.pathLength(instance=instance, itree=residual_tree, path=path)
 
         return path
 
@@ -184,7 +180,7 @@ class IForestObject():
         Description: Returns a list of all the path lengths from all the itrees in the iforest for a particular df entry
 
         Parameters:
-            instance - A single point in the dataframe
+            instance - A single entry/point in the dataframe
             forest - The IForest model which has been trained
         
         Returns: A list of all the path lengths (from every tree in forest) for a point in df
@@ -196,46 +192,79 @@ class IForestObject():
 
 
     def c_factor(self, n):
+        """
+        Description: While the maximum possible height of iTree grows in the order of n (Size of Training Data), 
+        the average height grows in the order of log n. c gives the average path length of unsuccessful search in Binary Search Tree. 
+        [From the IForest Research Paper Sited in report]
+
+        Parameters:
+            n - The number of external nodes [=subspace]
+        
+        Returns: The average path length of unsuccessful search in BST
+        """
         return 2.0*(np.log(n-1)+0.5772156649) - (2.0*(n-1.)/(n*1.0))
 
 
-    def anomaly_score(self, data_point,forest,n):
-        '''
-        Anomaly Score
+    def anomaly_score(self, data_point,forest, n):
+        """
+        Definition: Calculates an anomaly score which ranges from 0 to 1. Where:
+            1    -> Point is almost certainly an anomaly
+            <0.5 -> Point can safely be considered normal/ not an anomaly
+            0.5  -> If all the points score ~0.5 then there are no anomalies in the data
         
-        Returns
-        -------
-        0.5 -- sample does not have any distinct anomaly
-        0 -- Normal Instance
-        1 -- An anomaly
-        '''
+        Parameters:
+            data_point - The datapoint whose anomaly score is to be calculated
+            forest - The trained IForest model
+            n - The number of external nodes [=subspace]
+        
+        Returns: Anomaly score of a single data_point
+        """
         # Mean depth for an instance
         E = np.mean(self.evaluate_instance(data_point,forest))
         c = self.c_factor(n)
         
-        # return E
         return 2**-(E/c)
 
 
 ##### Algorithm called from here #####
 def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
+    """
+    Description: This function trains an Isolation Forest model and appends the anomaly score of each entry of the dataframe to
+        a column ['IF_anomaly']
 
+    Parameters:
+        n - Number of ITrees in the Isolation Forest ensemble
+        cntm - Contamination of anomalies can be manually be specified with this parameter [0.05 ~ 5%]
+        subspace - The size of random data taken from a DataFrame to train each tree [256 is an ideal value acc. to the research paper]
+        df - The DataFrame from which the anomalies need to be found
+    
+    Returns: None
+    """
     anms = IForestObject(n=n, df=df, contamination=cntm, subspace=subspace)
     trees = anms.IForest()
 
     an= []
     for i in range(df.shape[0]):
-        an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=25))
-
-    ans = np.array(an)
-
-    plt.figure("Anomaly score distribution")
-    plt.hist(an)
-    # plt.show()
+        an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=subspace))
 
     df["IF_anomaly"] = an
 
     print(df.head())
 
+    # Calculating a cutoff value from anomaly score depending on the contamination% provided
+    score_list = df["IF_anomaly"].tolist()
+    score_list.sort()
+    ind = round(len(score_list) * cntm)
+    cutoff = score_list[-ind]
+
+    print(f"Cutoff value: {cutoff}")
+
+    # Assigning anomaly decision based on cutoff value
+    df["IF_anomaly"] = [1 if val>cutoff else 0 for val in df["IF_anomaly"]]
+    
+    # plt.figure("Anomaly score distribution")
+    # plt.hist(an)
+    
+    print(df.head())
     return None
 

@@ -19,9 +19,9 @@ plt.plot(x,y, 'bo')
 # plt.show()
 
 
-iforest_pred(df=df, subspace=64)
+iforest_pred(df=df, subspace=256, cntm=0.01)
 
-color = ['r' if val>0.55 else 'g' for val in df["IF_anomaly"]]
+color = ['r' if val==1 else 'g' for val in df["IF_anomaly"]]
 
 df.plot.scatter("feat1", "feat2", color=color)
 plt.show()
