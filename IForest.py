@@ -1,4 +1,4 @@
-# Code for Isolation Forest as anomaly detection
+# Code for Isolation Forest for anomaly detection
 import random
 import numpy as np
 import pandas as pd
@@ -105,7 +105,7 @@ class IForestObject():
 
             data1, data2 = self.partition_feature(df, split_column, split_value)
 
-            # Storing the tree created                  # Way of storing referred from github link cited in report
+            # Storing the tree created                  # Way of storing referred from github repo cited in report
             store = f"{split_column} <= {split_value}"
             sub_tree = {store: []}
 
@@ -121,7 +121,7 @@ class IForestObject():
             
     def IForest(self):
         """
-        Description: Creates an ensemble of trees to make an Isolation Forest
+        Description: Creates an ensemble of itrees to make an Isolation Forest
 
         Parameters:
             self - Object for which Isolation Forest has to be made. Object's parameters are used in this function.
