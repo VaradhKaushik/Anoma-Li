@@ -73,6 +73,5 @@ class Unittest_kmeans:
             np.array(clus["label"]), np.absolute(np.array(clus["cluster_label"]) - 2)), "Clustering NOT as predicted."
         print("Classification of data2 points is correct")
         print("All Tests have been completed for KMEANS clustering and outlier detection algorithm")
-        print("Plotting sample data...")
 
         # End of unit test for Kmeans class
