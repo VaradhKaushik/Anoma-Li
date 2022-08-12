@@ -1,6 +1,6 @@
 import pandas as pd
 from collections import Counter
-
+import numpy as np
 
 class KNN:
     
@@ -71,6 +71,7 @@ class KNN:
         for i in self.xtrain.index:
             
             distlist.append(self.euclidist(test_pt, self.xtrain.loc[i].values))
+            
         dists_df = pd.DataFrame(data=distlist, index=self.xtrain.index, columns=['dist'])
         dists_df = dists_df.sort_values(by=['dist'], axis=0)[:self.k]
         temp = []
@@ -101,3 +102,41 @@ class KNN:
         ytest = pd.DataFrame(data = ytest_list, index = self.xtest.index, columns = ['target'])
         return ytest
     
+    def detect_anomaly(self,df,threshold=0.1):
+        '''
+        Detects anomalous values in the dataset without training based on the 
+        average euclidean distance of a point from all other point. Values above
+        the threshold are treated as anomalies. For example, if the threshold is
+        0.1 then the points having the top 10 percent distances are treated as anomalous. 
+
+        Parameters
+        ----------
+        df : A pandas dataframe containing int or float values on which the anomaly
+        detection is to be performed.
+        threshold : Value ranging from 0 to 1 (both exclusive). This signifies 
+        the threshold for average distances between points above which the point
+        is treated as anomalous. 
+            DESCRIPTION. The default is 0.1.
+
+        Returns
+        -------
+        anomaly : A pandas DataFrame containing the index and attribute values of the anomalies,
+
+        '''
+        
+        distdict = dict()
+        for i in df.index:
+            distlist = []
+            for j in df.index:
+                distlist.append(self.euclidist(df.loc[i].values, df.loc[j].values))
+            meandist = sum(distlist)/len(distlist)
+            distdict[i] = meandist
+            
+        
+        temp = list(distdict.values())
+        temp.sort()
+        threshold_limit = (temp[-1])*(1-threshold)
+        
+        anomaly = df.iloc[np.array([i for i in distdict if distdict[i] > threshold_limit])]
+        return anomaly
+  
