@@ -245,9 +245,9 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
     for i in range(df.shape[0]):
         an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=subspace))
 
-    df["IF_anomaly"] = an
+    print(f"Original df:\n{df.head()}")
 
-    print(df.head())
+    df["IF_anomaly"] = an
 
     # Calculating a cutoff value from anomaly score depending on the contamination% provided
     score_list = df["IF_anomaly"].tolist()
@@ -255,7 +255,7 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
     ind = round(len(score_list) * cntm)
     cutoff = score_list[-ind]
 
-    print(f"Cutoff value: {cutoff}")
+    print(f"\nCutoff value: {cutoff}\n")
 
     # Assigning anomaly decision based on cutoff value
     df["IF_anomaly"] = [1 if val>cutoff else 0 for val in df["IF_anomaly"]]
@@ -263,6 +263,6 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
     # plt.figure("Anomaly score distribution")
     # plt.hist(an)
     
-    print(df.head())
+    print(f"\nFinal df: \n{df.head()}")
     return None
 
