@@ -89,7 +89,7 @@ class IForestObject():
             df - Dataframe from which Isolation tree will be made.
             cnt - Current depth of the isolation tree.
         
-        Returns: Recursion function, returns itself and on termination condition returns the Leaf/External/Childless Node
+        Returns: A nested dictionary containing the ITree
         """
 
         # Termination/ Base case
@@ -131,7 +131,7 @@ class IForestObject():
         forest = []
         
         for i in range(self.n):                 
-            data = self.df.sample(self.subspace)    # Pick random slice of data to train trees on. 256 - ideal acc to Research Paper
+            data = self.df.sample(self.subspace)    # Pick random slice of data to train trees on. 256 - ideal for huge datasets acc to Research Paper
                                                     
             # Fitting Tree
             tree = self.ITree(data)
@@ -225,7 +225,7 @@ class IForestObject():
 
 
 ##### Algorithm called from here #####
-def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
+def iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14):
     """
     Description: This function trains an Isolation Forest model and appends the anomaly score of each entry of the dataframe to
         a column ['IF_anomaly']
@@ -238,7 +238,7 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None):
     
     Returns: None
     """
-    anms = IForestObject(n=n, df=df, contamination=cntm, subspace=subspace)
+    anms = IForestObject(n=n, df=df, contamination=cntm, subspace=subspace, seed=seed)
     trees = anms.IForest()
 
     an= []

@@ -1,28 +1,42 @@
 from IForest import *
 
-##### Generating Test Dataset #####
+
+np.random.seed(14)
+##### Generating Test Dataset #####         - Cited in references
 mean = [0, 0]
 cov = [[1, 0], [0, 1]]  # diagonal covariance
 Nobjs = 2000
 
 x, y = np.random.multivariate_normal(mean, cov, Nobjs).T
 x[0], y[0] = 3.3, 3.3       #Add manual outlier
+x[100], y[100] = 4.5, 3
 
 df=np.array([x,y]).T
 df = pd.DataFrame(df,columns=['feat1','feat2'])
 
 plt.figure("Generated Dataset")
-plt.plot(x,y, 'bo')
+plt.title(f"Random Generated Dataset with {Nobjs} points")
+plt.xlabel("Feature 1 of df")
+plt.ylabel("Feature 2 of df")
+plt.scatter(x,y,c='turquoise', marker='o', alpha=0.7)
 
-iforest_pred(df=df, subspace=256, cntm=0.01)
 
-color = ['r' if val==1 else 'g' for val in df["IF_anomaly"]]
-df.plot.scatter("feat1", "feat2", color=color)
+##### Calling the algorithms #####
+iforest_pred(df=df, subspace=64, cntm=0.01, seed=14)
 
-plt.plot(df['feat1'], color=color)
-plt.xlabel("feat1")
+##### Visualization of the anomalies #####
+try:
+    color = ['r' if val==1 else 'g' for val in df["IF_anomaly"]]
+    
+    fig1 = plt.figure("Isolation Forest")
+    plt.title("Isolation Forest Anomalies")
+    
+    plt.scatter(df['feat1'], df['feat2'], c=color, alpha=0.7)
+    plt.xlabel("Feature 1 of df")
+    plt.ylabel("Feature 2 of df")
 
-plt.plot(df['feat2'], color=color)
-plt.xlabel("feat2")
+except KeyError:
+    print("Isolation Forest anomaly data not found")
+
 
 plt.show()
