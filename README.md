@@ -26,7 +26,7 @@ OR
 * Run each algorithm individually by:
     * IForest:
 ```
-# Import IForest
+# Importing IForest
 from iforest import *
 
 # Make anomaly detection on a DataFrame
@@ -35,5 +35,23 @@ iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14)
 # Doesn't return anything, adds a column to DataFrame called "IF_anomaly", 
 # which contains binary values for anomalies [0-Normal point, 1-Anomaly]
 ```
+
+*   * K-means
+
+```
+# Importing K-means
+from kmeans import *
+
+# Create instance of Kmeans class and pass parameters
+obj = Kmeans(X, 5, 100)
+
+# Calculate distances
+obj.Calc_dic()
+
+#Output the value of outliers
+print(obj.Centroids)
+```
+
+
 
 

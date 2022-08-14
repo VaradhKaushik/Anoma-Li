@@ -1,6 +1,10 @@
-import pandas as pd
-from collections import Counter
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import display
+from collections import Counter
+from sklearn import datasets
 
 class KNN:
     
@@ -140,3 +144,25 @@ class KNN:
         anomaly = df.iloc[np.array([i for i in distdict if distdict[i] > threshold_limit])]
         return anomaly
   
+def knn_display_example():
+    iris = datasets.load_iris()
+    df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    df['target'] = iris.target
+    X = df.drop('target', axis=1)
+    y = df.target
+
+    from sklearn.model_selection import train_test_split
+
+    # Split the data - 75% train, 25% test
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25, random_state=1)
+    y_test = pd.DataFrame(data=y_test)
+    
+    knn = KNN(25, X_train, y_train, X_test)
+    ano = knn.detect_anomaly(df,0.1)
+    
+    plt.figure()
+    plt.title(f"KNN Anomalies on Iris Dataset")
+    plt.xlabel('Sepal length (cm)')
+    plt.ylabel('Sepal width (cm)')
+    plt.scatter(df["sepal length (cm)"], df["sepal width (cm)"], color = "b", s = 65)
+    plt.scatter(ano["sepal length (cm)"], ano["sepal width (cm)"], color = "r")
