@@ -2,10 +2,15 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.datasets import make_blobs
-
+from sklearn.datasets import make_classification 
+import KNN
+import display
 import Kmeans_outlier_detection as km
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 
 #Starting unit test for Kmeans class
+
 class Unittest_kmeans:
     """
     This class is te unit test for Kmeans Classification and Outlier Detection package.
@@ -75,3 +80,40 @@ class Unittest_kmeans:
         print("All Tests have been completed for KMEANS clustering and outlier detection algorithm")
 
         # End of unit test for Kmeans class
+        
+       
+class Knn_unittest:    
+    def unittest(self):
+        X, y = make_classification(
+            n_samples=500, 
+            n_features=2, 
+            n_redundant=0,
+            n_clusters_per_class=1,
+            class_sep=5,
+            random_state=42
+        )
+
+        df = pd.concat([pd.DataFrame(X), pd.Series(y)], axis=1)
+        df.columns = ['x1', 'x2', 'target']
+        
+        X = df.drop('target', axis=1)
+        y = df['target']
+        
+
+        # Split the data - 75% train, 25% test
+
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
+                                                           random_state=1)
+        y_test = pd.DataFrame(data=y_test)
+        knn = KNN(25, X_train, y_train, X_test)
+        print(knn.detect_anomaly(df,0.1))
+        y_hat_test = knn.predict()
+        dp = display.Display(y_hat_test, y_test)
+        print('Accuracy-',dp.find_accuracy())
+        print('Confusion Matrix-')
+        dp.confusion_matrix()
+        print('Precision-', dp.precision(1))
+        print('Recall-', dp.recall(1))
+        print('F1 score', dp.f1_score(1))
+        if dp.find_accuracy() == 0.92:
+            print('The model is working as expected')
