@@ -1,7 +1,7 @@
 # Anoma-Li
 Anomaly detection is a critical tool in identifying abnormal behavior in a data set because anomalies and outliers show that something unexpected has occurred.
 
-Anoma-Li aims to give an end-to-end solution to perform anomaly detection, from creating the dataset to visualizing the anomalies.Choose from various types of anomaly detection algorithms to perform outlier detection, and visualize the anomalies in the form of graphs.
+Anoma-Li aims to give an end-to-end solution to perform anomaly detection, from creating the dataset to visualizing the anomalies. Choose from various types of anomaly detection algorithms to perform outlier detection, and visualize the anomalies in the form of graphs.
 
 The anomaly detection methods that this package performs are:
 - K Means Classification
@@ -71,5 +71,24 @@ knn = KNN(k, xtrain, ytrain, xtest)
 anomalies = knn.detect_anomaly(df, threshold)
 ```
 
-*   * Mean
+*   * Median Absolute Deviation
+```
+# Importing MAD
+from mad import *
 
+# Checking anomaly possibility
+anm = mad(df[n])
+
+# If returned value is greater than 3, feature might contain anomalies
+```
+
+## Authors
+Contributors name and contact info
+
+[Varadh Kaushik](https://www.linkedin.com/in/varadh-kaushik/)
+ 
+[Shrey Desai]()
+ 
+[Rohit Nair]()
+
+[Chris Bolsinger]()
