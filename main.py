@@ -1,5 +1,7 @@
 from iforest import *
 from knn import *
+from kmeans import *
+from mad import *
 
 import numpy as np
 import pandas as pd
