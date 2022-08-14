@@ -36,7 +36,7 @@ iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14)
 # which contains binary values for anomalies [0-Normal point, 1-Anomaly]
 ```
 
-*   * K-means
+*   * K-means clustering
 
 ```
 # Importing K-means
@@ -48,10 +48,26 @@ obj = Kmeans(X, 5, 100)
 # Calculate distances
 obj.Calc_dic()
 
-#Output the value of outliers
-print(obj.Centroids)
+# Output the value of outliers
+print(obj.get_cluster_data(data))
+print(obj.get_outliers(data))
+
+# Plots the anomalies
+obj.WCSS_graph()
 ```
 
+*   * K-Nearest Neighbors
 
+```
+# Importing KNN
+from knn import *
 
+# Create KNN object
+knn = KNN(k, xtrain, ytrain, xtest)
+
+# Get anomalies
+anomalies = knn.detect_anomaly(df, threshold)
+```
+
+*   * Mean
 
