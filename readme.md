@@ -32,11 +32,10 @@ from iforest import *
 # Make anomaly detection on a DataFrame
 iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14)
 
-# Doesn't return anything, adds a column to DataFrame called "IF_anomaly", 
+# Doesn't return anything, adds a column to DataFrame called "IForest", 
 # which contains binary values for anomalies [0-Normal point, 1-Anomaly]
 ```
 
-![IForest anomaly detection example](https://drive.google.com/file/d/17KaJVlOV1l_awd3cDVeRPFEVd4dekygK/view?usp=sharing)
 
 *   * K-means clustering
 
