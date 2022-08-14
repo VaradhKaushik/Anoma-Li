@@ -1,4 +1,4 @@
-from IForest import *
+from iforest import *
 
 
 np.random.seed(14)

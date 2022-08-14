@@ -81,7 +81,7 @@ class IForestObject():
         return data_1, data_2                   # Returning the 2 partitions
     
     
-    def ITree(self, df, cnt=0):
+    def itree(self, df, cnt=0):
         """
         Description: Makes an Isolation Tree using recursion.
 
@@ -110,8 +110,8 @@ class IForestObject():
             sub_tree = {store: []}
 
             # Recursion on the two created partitions
-            ans1 = self.ITree(data1, cnt)
-            ans2 = self.ITree(data2, cnt)
+            ans1 = self.itree(data1, cnt)
+            ans2 = self.itree(data2, cnt)
 
             # Storing the sub-trees (Created on partitioned data above)
             sub_tree[store].append(ans1)
@@ -119,7 +119,7 @@ class IForestObject():
             
             return sub_tree
             
-    def IForest(self):
+    def iforest(self):
         """
         Description: Creates an ensemble of itrees to make an Isolation Forest
 
@@ -134,7 +134,7 @@ class IForestObject():
             data = self.df.sample(self.subspace)    # Pick random slice of data to train trees on. 256 - ideal for huge datasets acc to Research Paper
                                                     
             # Fitting Tree
-            tree = self.ITree(data)
+            tree = self.itree(data)
 
             # Add tree to forest
             forest.append(tree)
@@ -239,30 +239,23 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14):
     Returns: None
     """
     anms = IForestObject(n=n, df=df, contamination=cntm, subspace=subspace, seed=seed)
-    trees = anms.IForest()
+    trees = anms.iforest()
 
     an= []
     for i in range(df.shape[0]):
         an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=subspace))
-
-    print(f"Original df:\n{df.head()}")
 
     df["IF_anomaly"] = an
 
     # Calculating a cutoff value from anomaly score depending on the contamination% provided
     score_list = df["IF_anomaly"].tolist()
     score_list.sort()
+
     ind = round(len(score_list) * cntm)
     cutoff = score_list[-ind]
 
-    print(f"\nCutoff value: {cutoff}\n")
-
     # Assigning anomaly decision based on cutoff value
     df["IF_anomaly"] = [1 if val>cutoff else 0 for val in df["IF_anomaly"]]
-    
-    # plt.figure("Anomaly score distribution")
-    # plt.hist(an)
-    
-    print(f"\nFinal df: \n{df.head()}")
+
     return None
 
