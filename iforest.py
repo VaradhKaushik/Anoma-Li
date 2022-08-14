@@ -228,7 +228,7 @@ class IForestObject():
 def iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14):
     """
     Description: This function trains an Isolation Forest model and appends the anomaly score of each entry of the dataframe to
-        a column ['IF_anomaly']
+        a column ['IForest']
 
     Parameters:
         n - Number of ITrees in the Isolation Forest ensemble
@@ -238,6 +238,8 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14):
     
     Returns: None
     """
+    assert df is not None, "Empty DataFrame provided!"
+
     anms = IForestObject(n=n, df=df, contamination=cntm, subspace=subspace, seed=seed)
     trees = anms.iforest()
 
@@ -245,17 +247,17 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14):
     for i in range(df.shape[0]):
         an.append(anms.anomaly_score(data_point=df.iloc[[i]], forest=trees, n=subspace))
 
-    df["IF_anomaly"] = an
+    df["IForest"] = an
 
     # Calculating a cutoff value from anomaly score depending on the contamination% provided
-    score_list = df["IF_anomaly"].tolist()
+    score_list = df["IForest"].tolist()
     score_list.sort()
 
     ind = round(len(score_list) * cntm)
     cutoff = score_list[-ind]
 
     # Assigning anomaly decision based on cutoff value
-    df["IF_anomaly"] = [1 if val>cutoff else 0 for val in df["IF_anomaly"]]
+    df["IForest"] = [1 if val>cutoff else 0 for val in df["IForest"]]
 
     return None
 
