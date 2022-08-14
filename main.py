@@ -52,6 +52,7 @@ def visualise(df, algo):
     Returns: None. Plots anomalies via matplotlib.
     """  
     try:
+        # Anomalies shown in red!
         color = ['r' if val==1 else 'g' for val in df[algo]]
     
         plt.figure()

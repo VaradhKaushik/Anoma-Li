@@ -234,7 +234,7 @@ def iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14):
         n - Number of ITrees in the Isolation Forest ensemble
         cntm - Contamination of anomalies can be manually be specified with this parameter [0.05 ~ 5%]
         subspace - The size of random data taken from a DataFrame to train each tree [256 is an ideal value acc. to the research paper]
-        df - The DataFrame from which the anomalies need to be found
+        df - The DataFrame from which the anomalies need to be found, must contain only features. [Unique id - index of df]
     
     Returns: None
     """

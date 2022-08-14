@@ -36,6 +36,8 @@ iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14)
 # which contains binary values for anomalies [0-Normal point, 1-Anomaly]
 ```
 
+![IForest anomaly detection example](https://drive.google.com/file/d/17KaJVlOV1l_awd3cDVeRPFEVd4dekygK/view?usp=sharing)
+
 *   * K-means clustering
 
 ```
@@ -71,7 +73,7 @@ knn = KNN(k, xtrain, ytrain, xtest)
 anomalies = knn.detect_anomaly(df, threshold)
 ```
 
-*   * Median Absolute Deviation
+*   * Mean Absolute Deviation
 ```
 # Importing MAD
 from mad import *
