@@ -1,7 +1,40 @@
 from iforest import *
-
+import pandas as pd
+from collections import Counter
+import numpy as np
+from sklearn import datasets
+import display
+import matplotlib.pyplot as plt
 np.random.seed(14)
+def knn_display_example():
+    iris = datasets.load_iris()
+    df = pd.DataFrame(data=iris.data, columns=iris.feature_names)
+    df['target'] = iris.target
+    X = df.drop('target', axis=1)
+    y = df.target
 
+    from sklearn.model_selection import train_test_split
+
+        # Split the data - 75% train, 25% test
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.25,
+                                                           random_state=1)
+    y_test = pd.DataFrame(data=y_test)
+    knn = KNN(25, X_train, y_train, X_test)
+    ano = knn.detect_anomaly(df,0.1)
+    y_hat_test = knn.predict()
+    print(ano)   
+    dp = display.Display(y_hat_test, y_test)
+    print('Accuracy-',dp.find_accuracy())
+    print('Confusion Matrix-')
+    dp.confusion_matrix()
+    print('Precision-', dp.precision(1))
+    print('Recall-', dp.recall(1))
+    print('F1 score', dp.f1_score(1))
+    plt.scatter(df["sepal length (cm)"], df["sepal width (cm)"], color = "b", s = 65)
+
+    plt.scatter(ano["sepal length (cm)"], ano["sepal width (cm)"], color = "r")
+    
 ##### Generating Test Dataset #####         - Cited in references
 def generate_data(n=2000):
     mean = [0, 0]
@@ -44,3 +77,4 @@ except KeyError:
 # def visualise():
 
 plt.show()
+knn_display_example()
