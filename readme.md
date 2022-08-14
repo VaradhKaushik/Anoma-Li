@@ -50,9 +50,11 @@ obj.Calc_dic()
 
 # Output the value of outliers
 print(obj.get_cluster_data(data))
+
+#Output the value of anomalies
 print(obj.get_outliers(data))
 
-# Plots the anomalies
+#Plots the WCSS graph
 obj.WCSS_graph()
 ```
 
