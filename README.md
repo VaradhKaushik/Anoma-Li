@@ -27,7 +27,7 @@ OR
     * IForest:
 ```
 # Import IForest
-from IForest import *
+from iforest import *
 
 # Make anomaly detection on a DataFrame
 iforest_pred(n=100, cntm=0.05, subspace=256, df=None, seed=14)
