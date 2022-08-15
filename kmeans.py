@@ -201,16 +201,16 @@ class Kmeans:
             Centroidz = self.Centroids
             wcss = 0
 
-            for k in range(self.K):
-                clus_arr = self.cluster_2xm_array(k)
-                wcss = wcss + np.sum((clus_arr.T - Centroidz[k, :]) ** 2)
+            for i in range(self.K):
+                clus_arr = self.cluster_2xm_array(i)
+                wcss = wcss + np.sum((clus_arr.T - Centroidz[i, :]) ** 2)
             WCSS_arr = np.append(WCSS_arr, wcss)
         print("WCSS_arr = ", WCSS_arr)
 
-        K_array = np.arange(2, 11, 1)
-        plt.plot(K_array, WCSS_arr)
+        Karr = np.arange(2, 11, 1)
+        plt.plot(Karr, WCSS_arr)
         plt.xlabel('Number of Clusters')
-        plt.ylabel('within-cluster sums of squares (WCSS)')
-        plt.title('Elbow method to determine optimum number of clusters')
+        plt.ylabel('WCSS')
+        plt.title('WCSS vs No of clusters')
         plt.show()
 
