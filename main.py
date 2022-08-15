@@ -86,12 +86,16 @@ if __name__ == "__main__":
     obj.Calc_dic()
     print("Centroids = ",obj.Centroids)
     
+    print("Cluster label = ",obj.get_cluster_data(df1))
+
+    print("Outliers = ",obj.get_outliers(df1))
+
     plt.scatter(X["feat1"], X["feat2"], c='black')
     color = ['red', 'blue', 'green', 'cyan', 'magenta']
     labels = ['cluster1', 'cluster2', 'cluster3', 'cluster4', 'cluster5']
     for p in range(obj.K):
-        la, lb = obj.cluster_list()
-        plt.scatter(la, lb, c=color[p])
+        la, lb = obj.cluster_list(p)
+        plt.scatter(la, lb, c=color[p] , label=labels[p])
 
     plt.scatter(obj.Centroids[:, 0], obj.Centroids[:, 1], s=300, c='yellow', label='Centroids')
     plt.scatter(obj.outliers1['feat1'], obj.outliers1['feat2'], c='orange', s=100, label='Outliers')
@@ -101,10 +105,7 @@ if __name__ == "__main__":
     plt.title('Plot of data points')
     plt.show()
     
-    print("Cluster label = ",obj.get_cluster_data(df1))
-
-    print("Outliers = ",obj.get_outliers(df1))
-
+    #plotting WCSS graph to determine correct value of K required
     obj.WCSS_graph()
 
 
