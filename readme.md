@@ -83,6 +83,14 @@ anm = mad(df[n])
 # If returned value is greater than 3, feature might contain anomalies
 ```
 
+## Future Scope
+
+* Unified Visualization function - have a single function to visualize anomalies from all algorithms
+
+* Roboust input validation - have a more robust validation of input DataFrames to test if an algorithm is compatible with it.
+
+* Addition of new anomaly detection algorithms - like Median Absolute Deviation and PCA. 
+
 ## Authors
 Contributors name and contact info
 
